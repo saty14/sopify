@@ -1,0 +1,1253 @@
+{% liquid
+  assign product_1 = section.settings.product_1
+  assign product_2 = section.settings.product_2
+  assign product_3 = section.settings.product_3
+%}
+
+<section
+  id="SatyProductBundle-{{ section.id }}"
+  class="saty-product-bundle"
+>
+  <div class="saty-bundle-container">
+
+    {% if section.settings.heading != blank %}
+      <h2 class="saty-bundle-heading">
+        {{ section.settings.heading }}
+      </h2>
+    {% endif %}
+
+    {% if section.settings.subheading != blank %}
+      <div class="saty-bundle-subheading">
+        {{ section.settings.subheading }}
+      </div>
+    {% endif %}
+
+    <div class="saty-bundle-products">
+
+      {% comment %}
+        PRODUCT 1
+      {% endcomment %}
+
+      {% if product_1 != blank %}
+        <div
+          class="saty-bundle-product"
+          data-product-card
+          data-product-index="1"
+        >
+          <a
+            href="{{ product_1.url }}"
+            class="saty-bundle-image-link"
+          >
+            {% if product_1.featured_image %}
+              <img
+                src="{{ product_1.featured_image | image_url: width: 600 }}"
+                alt="{{ product_1.featured_image.alt | default: product_1.title | escape }}"
+                loading="lazy"
+                width="600"
+                height="600"
+              >
+            {% else %}
+              {{ 'product-1' | placeholder_svg_tag }}
+            {% endif %}
+          </a>
+
+          <div class="saty-bundle-product-info">
+
+            <a
+              href="{{ product_1.url }}"
+              class="saty-bundle-product-title"
+            >
+              {{ product_1.title }}
+            </a>
+
+            <div class="saty-bundle-price">
+              {{ product_1.selected_or_first_available_variant.price | money }}
+            </div>
+
+            {% if product_1.variants.size > 1 %}
+              <div class="saty-bundle-option">
+                <label for="SatyBundleVariant-{{ section.id }}-1">
+                  Variant
+                </label>
+
+                <select
+                  id="SatyBundleVariant-{{ section.id }}-1"
+                  class="saty-bundle-variant"
+                  data-product-index="1"
+                >
+                  {% for variant in product_1.variants %}
+                    <option
+                      value="{{ variant.id }}"
+                      data-price="{{ variant.price | money }}"
+                      data-available="{{ variant.available }}"
+                      {% if variant == product_1.selected_or_first_available_variant %}
+                        selected
+                      {% endif %}
+                    >
+                      {{ variant.title }}
+                      {% unless variant.available %}
+                        - Sold out
+                      {% endunless %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            {% else %}
+              <input
+                type="hidden"
+                class="saty-bundle-variant"
+                value="{{ product_1.selected_or_first_available_variant.id }}"
+                data-product-index="1"
+                data-available="{{ product_1.selected_or_first_available_variant.available }}"
+              >
+            {% endif %}
+
+          </div>
+        </div>
+      {% endif %}
+
+
+      {% comment %}
+        PLUS ICON
+      {% endcomment %}
+
+      {% if product_1 != blank and product_2 != blank %}
+        <div class="saty-bundle-plus" aria-hidden="true">
+          +
+        </div>
+      {% endif %}
+
+
+      {% comment %}
+        PRODUCT 2
+      {% endcomment %}
+
+      {% if product_2 != blank %}
+        <div
+          class="saty-bundle-product"
+          data-product-card
+          data-product-index="2"
+        >
+          <a
+            href="{{ product_2.url }}"
+            class="saty-bundle-image-link"
+          >
+            {% if product_2.featured_image %}
+              <img
+                src="{{ product_2.featured_image | image_url: width: 600 }}"
+                alt="{{ product_2.featured_image.alt | default: product_2.title | escape }}"
+                loading="lazy"
+                width="600"
+                height="600"
+              >
+            {% else %}
+              {{ 'product-1' | placeholder_svg_tag }}
+            {% endif %}
+          </a>
+
+          <div class="saty-bundle-product-info">
+
+            <a
+              href="{{ product_2.url }}"
+              class="saty-bundle-product-title"
+            >
+              {{ product_2.title }}
+            </a>
+
+            <div class="saty-bundle-price">
+              {{ product_2.selected_or_first_available_variant.price | money }}
+            </div>
+
+            {% if product_2.variants.size > 1 %}
+              <div class="saty-bundle-option">
+                <label for="SatyBundleVariant-{{ section.id }}-2">
+                  Variant
+                </label>
+
+                <select
+                  id="SatyBundleVariant-{{ section.id }}-2"
+                  class="saty-bundle-variant"
+                  data-product-index="2"
+                >
+                  {% for variant in product_2.variants %}
+                    <option
+                      value="{{ variant.id }}"
+                      data-price="{{ variant.price | money }}"
+                      data-available="{{ variant.available }}"
+                      {% if variant == product_2.selected_or_first_available_variant %}
+                        selected
+                      {% endif %}
+                    >
+                      {{ variant.title }}
+                      {% unless variant.available %}
+                        - Sold out
+                      {% endunless %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            {% else %}
+              <input
+                type="hidden"
+                class="saty-bundle-variant"
+                value="{{ product_2.selected_or_first_available_variant.id }}"
+                data-product-index="2"
+                data-available="{{ product_2.selected_or_first_available_variant.available }}"
+              >
+            {% endif %}
+
+          </div>
+        </div>
+      {% endif %}
+
+
+      {% comment %}
+        PLUS ICON
+      {% endcomment %}
+
+      {% if product_2 != blank and product_3 != blank %}
+        <div class="saty-bundle-plus" aria-hidden="true">
+          +
+        </div>
+      {% endif %}
+
+
+      {% comment %}
+        PRODUCT 3
+      {% endcomment %}
+
+      {% if product_3 != blank %}
+        <div
+          class="saty-bundle-product"
+          data-product-card
+          data-product-index="3"
+        >
+          <a
+            href="{{ product_3.url }}"
+            class="saty-bundle-image-link"
+          >
+            {% if product_3.featured_image %}
+              <img
+                src="{{ product_3.featured_image | image_url: width: 600 }}"
+                alt="{{ product_3.featured_image.alt | default: product_3.title | escape }}"
+                loading="lazy"
+                width="600"
+                height="600"
+              >
+            {% else %}
+              {{ 'product-1' | placeholder_svg_tag }}
+            {% endif %}
+          </a>
+
+          <div class="saty-bundle-product-info">
+
+            <a
+              href="{{ product_3.url }}"
+              class="saty-bundle-product-title"
+            >
+              {{ product_3.title }}
+            </a>
+
+            <div class="saty-bundle-price">
+              {{ product_3.selected_or_first_available_variant.price | money }}
+            </div>
+
+            {% if product_3.variants.size > 1 %}
+              <div class="saty-bundle-option">
+                <label for="SatyBundleVariant-{{ section.id }}-3">
+                  Variant
+                </label>
+
+                <select
+                  id="SatyBundleVariant-{{ section.id }}-3"
+                  class="saty-bundle-variant"
+                  data-product-index="3"
+                >
+                  {% for variant in product_3.variants %}
+                    <option
+                      value="{{ variant.id }}"
+                      data-price="{{ variant.price | money }}"
+                      data-available="{{ variant.available }}"
+                      {% if variant == product_3.selected_or_first_available_variant %}
+                        selected
+                      {% endif %}
+                    >
+                      {{ variant.title }}
+                      {% unless variant.available %}
+                        - Sold out
+                      {% endunless %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            {% else %}
+              <input
+                type="hidden"
+                class="saty-bundle-variant"
+                value="{{ product_3.selected_or_first_available_variant.id }}"
+                data-product-index="3"
+                data-available="{{ product_3.selected_or_first_available_variant.available }}"
+              >
+            {% endif %}
+
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+
+
+    {% if product_1 != blank
+      and product_2 != blank
+      and product_3 != blank
+    %}
+
+      <div class="saty-bundle-bottom">
+
+        <div class="saty-bundle-total">
+          <span class="saty-bundle-total-label">
+            Bundle Total
+          </span>
+
+          <strong
+            id="SatyBundleTotal-{{ section.id }}"
+            class="saty-bundle-total-price"
+          >
+            {{ product_1.selected_or_first_available_variant.price
+              | plus: product_2.selected_or_first_available_variant.price
+              | plus: product_3.selected_or_first_available_variant.price
+              | money
+            }}
+          </strong>
+        </div>
+
+        <button
+          type="button"
+          id="SatyBundleAdd-{{ section.id }}"
+          class="saty-bundle-add"
+        >
+          <span class="saty-bundle-button-text">
+            {{ section.settings.button_text }}
+          </span>
+
+          <span
+            class="saty-bundle-loading"
+            hidden
+          >
+            Adding...
+          </span>
+        </button>
+
+        <div
+          id="SatyBundleError-{{ section.id }}"
+          class="saty-bundle-error"
+          role="alert"
+          hidden
+        ></div>
+
+      </div>
+
+    {% else %}
+
+      <div class="saty-bundle-empty">
+        Please select 3 products in the section settings.
+      </div>
+
+    {% endif %}
+
+  </div>
+</section>
+
+
+<style>
+  #SatyProductBundle-{{ section.id }} {
+    width: 100%;
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-container {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-heading {
+    margin: 0 0 8px;
+    text-align: center;
+    font-size: 32px;
+    line-height: 1.2;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-subheading {
+    margin: 0 auto 30px;
+    text-align: center;
+    color: #666;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-products {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: center;
+    gap: 20px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-product {
+    min-width: 0;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-image-link {
+    display: block;
+    overflow: hidden;
+    border-radius: {{ section.settings.image_radius }}px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-image-link img,
+  #SatyProductBundle-{{ section.id }} .saty-bundle-image-link svg {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-product-info {
+    padding-top: 14px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-product-title {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-price {
+    margin-top: 7px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-option {
+    margin-top: 12px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-option label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-variant {
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid #d6d6d6;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 14px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-plus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    font-size: 28px;
+    font-weight: 400;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-bottom {
+    margin-top: 30px;
+    text-align: center;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-total {
+    margin-bottom: 16px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-total-label {
+    margin-right: 8px;
+    font-size: 16px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-total-price {
+    font-size: 20px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-add {
+    position: relative;
+    min-width: 260px;
+    min-height: 50px;
+    padding: 12px 25px;
+    border: 0;
+    border-radius: {{ section.settings.button_radius }}px;
+    background: {{ section.settings.button_color }};
+    color: {{ section.settings.button_text_color }};
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-add:hover {
+    opacity: 0.9;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-add:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-loading {
+    display: inline-block;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-error {
+    margin: 14px auto 0;
+    max-width: 500px;
+    color: #d00;
+    font-size: 14px;
+  }
+
+  #SatyProductBundle-{{ section.id }} .saty-bundle-empty {
+    padding: 30px;
+    text-align: center;
+    border: 1px dashed #ccc;
+  }
+
+  @media screen and (max-width: 749px) {
+    #SatyProductBundle-{{ section.id }} .saty-bundle-products {
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+
+    #SatyProductBundle-{{ section.id }} .saty-bundle-plus {
+      margin: 0 auto;
+      transform: rotate(90deg);
+    }
+
+    #SatyProductBundle-{{ section.id }} .saty-bundle-heading {
+      font-size: 25px;
+    }
+
+    #SatyProductBundle-{{ section.id }} .saty-bundle-add {
+      width: 100%;
+    }
+  }
+</style>
+
+
+<script>
+(function () {
+  'use strict';
+
+  const sectionId = '{{ section.id }}';
+
+  const section = document.getElementById(
+    'SatyProductBundle-' + sectionId
+  );
+
+  if (!section) return;
+
+  const addButton = document.getElementById(
+    'SatyBundleAdd-' + sectionId
+  );
+
+  const totalElement = document.getElementById(
+    'SatyBundleTotal-' + sectionId
+  );
+
+  const errorElement = document.getElementById(
+    'SatyBundleError-' + sectionId
+  );
+
+  if (!addButton) return;
+
+
+  /*
+   * ---------------------------------------------------------
+   * GET SELECTED VARIANTS
+   * ---------------------------------------------------------
+   */
+
+  function getBundleItems() {
+
+    const variantInputs = section.querySelectorAll(
+      '.saty-bundle-variant'
+    );
+
+    const items = [];
+
+    variantInputs.forEach(function (input) {
+
+      const variantId = input.value;
+
+      if (!variantId) return;
+
+      let available = true;
+
+      if (input.tagName === 'SELECT') {
+
+        const option = input.options[input.selectedIndex];
+
+        available =
+          option &&
+          option.dataset.available === 'true';
+
+      } else {
+
+        available =
+          input.dataset.available === 'true';
+
+      }
+
+      items.push({
+        id: Number(variantId),
+        quantity: 1,
+        available: available
+      });
+
+    });
+
+    return items;
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * UPDATE PRICE
+   * ---------------------------------------------------------
+   */
+
+  function updateTotal() {
+
+    let total = 0;
+
+    const variantInputs = section.querySelectorAll(
+      '.saty-bundle-variant'
+    );
+
+    variantInputs.forEach(function (input) {
+
+      if (input.tagName === 'SELECT') {
+
+        const option = input.options[input.selectedIndex];
+
+        if (option && option.dataset.price) {
+
+          /*
+           * Shopify money strings can contain currency symbols,
+           * therefore price calculation is primarily handled
+           * by the server. This keeps the displayed initial
+           * bundle total reliable.
+           */
+        }
+      }
+    });
+
+    return total;
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * VARIANT CHANGE
+   * ---------------------------------------------------------
+   */
+
+  section
+    .querySelectorAll('.saty-bundle-variant')
+    .forEach(function (select) {
+
+      if (select.tagName !== 'SELECT') return;
+
+      select.addEventListener('change', function () {
+
+        const option =
+          select.options[select.selectedIndex];
+
+        const card =
+          select.closest('[data-product-card]');
+
+        if (!card) return;
+
+        const priceElement =
+          card.querySelector('.saty-bundle-price');
+
+        if (
+          priceElement &&
+          option &&
+          option.dataset.price
+        ) {
+          priceElement.textContent =
+            option.dataset.price;
+        }
+
+        updateButtonState();
+      });
+
+    });
+
+
+  /*
+   * ---------------------------------------------------------
+   * BUTTON STATE
+   * ---------------------------------------------------------
+   */
+
+  function updateButtonState() {
+
+    const items = getBundleItems();
+
+    if (items.length !== 3) {
+      addButton.disabled = true;
+      return;
+    }
+
+    const unavailable = items.some(function (item) {
+      return !item.available;
+    });
+
+    addButton.disabled = unavailable;
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * SHOW ERROR
+   * ---------------------------------------------------------
+   */
+
+  function showError(message) {
+
+    if (!errorElement) return;
+
+    errorElement.textContent = message;
+    errorElement.hidden = false;
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * HIDE ERROR
+   * ---------------------------------------------------------
+   */
+
+  function hideError() {
+
+    if (!errorElement) return;
+
+    errorElement.textContent = '';
+    errorElement.hidden = true;
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * REFRESH CART DRAWER
+   * ---------------------------------------------------------
+   */
+
+  async function refreshCartDrawer() {
+
+    const root =
+      window.Shopify &&
+      window.Shopify.routes &&
+      window.Shopify.routes.root
+        ? window.Shopify.routes.root
+        : '/';
+
+    const response = await fetch(
+      root + '?sections=cart-drawer,cart-icon-bubble',
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        },
+        cache: 'no-store'
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        'Unable to refresh cart.'
+      );
+    }
+
+    return response.json();
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * UPDATE CART ICON
+   * ---------------------------------------------------------
+   */
+
+  function updateCartIcon(html) {
+
+    if (!html) return;
+
+    const current =
+      document.querySelector('#cart-icon-bubble');
+
+    if (!current) return;
+
+    const parser = new DOMParser();
+
+    const documentFragment =
+      parser.parseFromString(
+        html,
+        'text/html'
+      );
+
+    const newIcon =
+      documentFragment.querySelector(
+        '#cart-icon-bubble'
+      );
+
+    if (newIcon) {
+      current.replaceWith(newIcon);
+    }
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * UPDATE CART DRAWER
+   * ---------------------------------------------------------
+   */
+
+  function updateCartDrawer(html) {
+
+    if (!html) return null;
+
+    const currentDrawer =
+      document.querySelector('cart-drawer');
+
+    if (!currentDrawer) return null;
+
+    const parser = new DOMParser();
+
+    const documentFragment =
+      parser.parseFromString(
+        html,
+        'text/html'
+      );
+
+    const newDrawer =
+      documentFragment.querySelector(
+        'cart-drawer'
+      );
+
+    if (!newDrawer) return currentDrawer;
+
+    /*
+     * Keep the existing cart-drawer custom element.
+     * Only replace its contents.
+     */
+
+    currentDrawer.innerHTML =
+      newDrawer.innerHTML;
+
+    currentDrawer.className =
+      newDrawer.className;
+
+    if (newDrawer.hasAttribute('open')) {
+      currentDrawer.setAttribute(
+        'open',
+        ''
+      );
+    }
+
+    return currentDrawer;
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * OPEN CART DRAWER
+   * ---------------------------------------------------------
+   */
+
+  function openCartDrawer(drawer) {
+
+    if (!drawer) {
+      drawer =
+        document.querySelector('cart-drawer');
+    }
+
+    if (!drawer) return;
+
+    /*
+     * Dawn native method
+     */
+
+    if (typeof drawer.open === 'function') {
+
+      requestAnimationFrame(function () {
+        drawer.open();
+      });
+
+      return;
+    }
+
+    /*
+     * Fallback
+     */
+
+    drawer.classList.add('active');
+    drawer.setAttribute('open', '');
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * ADD BUNDLE
+   * ---------------------------------------------------------
+   */
+
+  addButton.addEventListener(
+    'click',
+    async function () {
+
+      hideError();
+
+      const items = getBundleItems();
+
+      if (items.length !== 3) {
+
+        showError(
+          'Please select all 3 products.'
+        );
+
+        return;
+      }
+
+      const unavailable =
+        items.find(function (item) {
+          return !item.available;
+        });
+
+      if (unavailable) {
+
+        showError(
+          'One of the selected products is sold out.'
+        );
+
+        return;
+      }
+
+
+      /*
+       * Loading state
+       */
+
+      addButton.disabled = true;
+
+      const buttonText =
+        addButton.querySelector(
+          '.saty-bundle-button-text'
+        );
+
+      const loadingText =
+        addButton.querySelector(
+          '.saty-bundle-loading'
+        );
+
+      if (buttonText) {
+        buttonText.hidden = true;
+      }
+
+      if (loadingText) {
+        loadingText.hidden = false;
+      }
+
+
+      try {
+
+        /*
+         * Shopify native cart endpoint
+         *
+         * All three variants are added in ONE request.
+         */
+
+        const response = await fetch(
+          '{{ routes.cart_add_url }}.js',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type':
+                'application/json',
+              'Accept':
+                'application/json'
+            },
+            body: JSON.stringify({
+              items: items.map(function (item) {
+                return {
+                  id: item.id,
+                  quantity: item.quantity
+                };
+              })
+            })
+          }
+        );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.description ||
+            data.message ||
+            'Unable to add bundle to cart.'
+          );
+        }
+
+
+        /*
+         * Refresh cart drawer and cart icon
+         */
+
+        const sections =
+          await refreshCartDrawer();
+
+
+        if (
+          sections &&
+          sections['cart-icon-bubble']
+        ) {
+
+          updateCartIcon(
+            sections['cart-icon-bubble']
+          );
+        }
+
+
+        let drawer = null;
+
+        if (
+          sections &&
+          sections['cart-drawer']
+        ) {
+
+          drawer =
+            updateCartDrawer(
+              sections['cart-drawer']
+            );
+        }
+
+
+        /*
+         * Open drawer AFTER fresh cart
+         */
+
+        requestAnimationFrame(function () {
+
+          setTimeout(function () {
+
+            openCartDrawer(drawer);
+
+          }, 30);
+
+        });
+
+
+        /*
+         * Notify theme
+         */
+
+        document.dispatchEvent(
+          new CustomEvent(
+            'cart:updated',
+            {
+              bubbles: true,
+              detail: {
+                items: data.items
+              }
+            }
+          )
+        );
+
+        document.dispatchEvent(
+          new CustomEvent(
+            'cart:refresh',
+            {
+              bubbles: true
+            }
+          )
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          'Bundle add to cart error:',
+          error
+        );
+
+        showError(
+          error.message ||
+          'Unable to add bundle to cart.'
+        );
+
+
+      } finally {
+
+        if (buttonText) {
+          buttonText.hidden = false;
+        }
+
+        if (loadingText) {
+          loadingText.hidden = true;
+        }
+
+        updateButtonState();
+
+      }
+
+    }
+  );
+
+
+  /*
+   * Initial state
+   */
+
+  updateButtonState();
+
+})();
+</script>
+
+
+{% schema %}
+{
+  "name": "Saty Product Bundle",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Bundle products"
+    },
+    {
+      "type": "product",
+      "id": "product_1",
+      "label": "Product 1"
+    },
+    {
+      "type": "product",
+      "id": "product_2",
+      "label": "Product 2"
+    },
+    {
+      "type": "product",
+      "id": "product_3",
+      "label": "Product 3"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Build Your Bundle"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Choose your products and add them all to cart."
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Add Bundle to Cart"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Maximum width",
+      "min": 800,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "Image radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "label": "Button radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Saty Product Bundle"
+    }
+  ]
+}
+{% endschema %}
