@@ -1,0 +1,1898 @@
+{% liquid
+  assign current_product = product
+
+  if current_product == blank and section.settings.product != blank
+    assign current_product = section.settings.product
+  endif
+
+  if current_product != blank
+    assign selected_variant = current_product.selected_or_first_available_variant
+  endif
+
+  assign form_id = 'CustomProductForm-' | append: section.id
+%}
+
+{% if current_product != blank %}
+
+<section
+  id="CustomProductSection-{{ section.id }}"
+  class="custom-product-section"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ current_product.id }}"
+>
+
+  <div class="custom-product-container">
+
+    <div class="custom-product-wrapper">
+
+      <!-- =====================================================
+           PRODUCT GALLERY
+      ====================================================== -->
+
+      <div class="custom-product-gallery">
+
+        <div class="custom-product-main-image">
+
+          {% if selected_variant.featured_image != blank %}
+
+            <img
+              id="CustomProductMainImage-{{ section.id }}"
+              src="{{ selected_variant.featured_image | image_url: width: 1200 }}"
+              alt="{{ selected_variant.featured_image.alt | default: current_product.title | escape }}"
+              width="{{ selected_variant.featured_image.width }}"
+              height="{{ selected_variant.featured_image.height }}"
+              loading="eager"
+            >
+
+          {% elsif current_product.featured_image != blank %}
+
+            <img
+              id="CustomProductMainImage-{{ section.id }}"
+              src="{{ current_product.featured_image | image_url: width: 1200 }}"
+              alt="{{ current_product.featured_image.alt | default: current_product.title | escape }}"
+              width="{{ current_product.featured_image.width }}"
+              height="{{ current_product.featured_image.height }}"
+              loading="eager"
+            >
+
+          {% else %}
+
+            {{ 'product-1' | placeholder_svg_tag: 'custom-product-placeholder' }}
+
+          {% endif %}
+
+        </div>
+
+
+        {% if current_product.images.size > 1 %}
+
+          <div class="custom-product-thumbnails">
+
+            {% for image in current_product.images %}
+
+              <button
+                type="button"
+                class="custom-product-thumbnail{% if image.id == selected_variant.featured_image.id %} is-active{% elsif selected_variant.featured_image == blank and image.id == current_product.featured_image.id %} is-active{% endif %}"
+                data-image-url="{{ image | image_url: width: 1200 }}"
+                data-image-alt="{{ image.alt | default: current_product.title | escape }}"
+                aria-label="View product image {{ forloop.index }}"
+              >
+
+                <img
+                  src="{{ image | image_url: width: 180 }}"
+                  alt="{{ image.alt | default: current_product.title | escape }}"
+                  width="180"
+                  height="180"
+                  loading="lazy"
+                >
+
+              </button>
+
+            {% endfor %}
+
+          </div>
+
+        {% endif %}
+
+      </div>
+
+
+      <!-- =====================================================
+           PRODUCT INFORMATION
+      ====================================================== -->
+
+      <div class="custom-product-info">
+
+        {% if section.settings.show_vendor and current_product.vendor != blank %}
+
+          <div class="custom-product-vendor">
+            {{ current_product.vendor }}
+          </div>
+
+        {% endif %}
+
+
+        <h1 class="custom-product-title">
+          {{ current_product.title }}
+        </h1>
+
+
+        <!-- =================================================
+             PRICE
+        ================================================== -->
+
+        <div
+          id="CustomProductPrice-{{ section.id }}"
+          class="custom-product-price-wrapper"
+        >
+
+          <span class="custom-product-price">
+            {{ selected_variant.price | money }}
+          </span>
+
+          <span
+            class="custom-product-compare-price"
+            {% unless selected_variant.compare_at_price > selected_variant.price %}
+              style="display:none;"
+            {% endunless %}
+          >
+
+            {% if selected_variant.compare_at_price > selected_variant.price %}
+              {{ selected_variant.compare_at_price | money }}
+            {% endif %}
+
+          </span>
+
+        </div>
+
+
+        <!-- =================================================
+             DESCRIPTION
+        ================================================== -->
+
+        {% if current_product.description != blank %}
+
+          <div class="custom-product-description">
+            {{ current_product.description }}
+          </div>
+
+        {% endif %}
+
+
+        <!-- =================================================
+             PRODUCT FORM
+
+             IMPORTANT:
+             First argument MUST be 'product'
+             and second argument is the product object.
+        ================================================== -->
+
+        {% form 'product',
+          current_product,
+          id: form_id,
+          class: 'custom-product-form'
+        %}
+
+          <!-- Shopify requires variant ID as name="id" -->
+
+          <input
+            type="hidden"
+            name="id"
+            value="{{ selected_variant.id }}"
+            id="CustomProductVariantId-{{ section.id }}"
+          >
+
+
+          <!-- =================================================
+               VARIANTS
+          ================================================== -->
+
+          {% unless current_product.has_only_default_variant %}
+
+            <div class="custom-product-options">
+
+              {% for option in current_product.options_with_values %}
+
+                <fieldset
+                  class="custom-product-option"
+                  data-option-index="{{ forloop.index0 }}"
+                >
+
+                  <legend class="custom-product-option-label">
+                    {{ option.name }}
+                  </legend>
+
+                  <div class="custom-product-option-values">
+
+                    {% for value in option.values %}
+
+                      {% assign option_input_id = 'CustomProductOption-' | append: section.id | append: '-' | append: forloop.parentloop.index0 | append: '-' | append: forloop.index0 %}
+
+                      <input
+                        type="radio"
+                        id="{{ option_input_id }}"
+                        name="option-{{ forloop.parentloop.index0 }}-{{ section.id }}"
+                        value="{{ value | escape }}"
+                        class="custom-product-option-input"
+                        data-option-position="{{ option.position }}"
+                        {% if option.selected_value == value %}
+                          checked
+                        {% endif %}
+                      >
+
+                      <label
+                        for="{{ option_input_id }}"
+                        class="custom-product-option-value"
+                      >
+                        {{ value }}
+                      </label>
+
+                    {% endfor %}
+
+                  </div>
+
+                </fieldset>
+
+              {% endfor %}
+
+            </div>
+
+          {% endunless %}
+
+
+          <!-- =================================================
+               QUANTITY
+          ================================================== -->
+
+          {% if section.settings.show_quantity %}
+
+            <div class="custom-product-quantity-wrapper">
+
+              <label
+                for="CustomProductQuantity-{{ section.id }}"
+                class="custom-product-quantity-label"
+              >
+                Quantity
+              </label>
+
+              <div class="custom-product-quantity">
+
+                <button
+                  type="button"
+                  class="custom-product-quantity-btn"
+                  data-quantity-minus
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+
+                <input
+                  id="CustomProductQuantity-{{ section.id }}"
+                  class="custom-product-quantity-input"
+                  type="number"
+                  name="quantity"
+                  value="1"
+                  min="1"
+                  step="1"
+                  inputmode="numeric"
+                >
+
+                <button
+                  type="button"
+                  class="custom-product-quantity-btn"
+                  data-quantity-plus
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+
+              </div>
+
+            </div>
+
+          {% else %}
+
+            <input
+              type="hidden"
+              name="quantity"
+              value="1"
+            >
+
+          {% endif %}
+
+
+          <!-- =================================================
+               ADD TO CART
+          ================================================== -->
+
+          <button
+            type="submit"
+            name="add"
+            id="CustomProductAddToCart-{{ section.id }}"
+            class="custom-product-add-to-cart"
+            {% unless selected_variant.available %}
+              disabled
+            {% endunless %}
+          >
+
+            <span class="custom-product-add-text">
+
+              {% if selected_variant.available %}
+                {{ section.settings.add_to_cart_text }}
+              {% else %}
+                {{ section.settings.sold_out_text }}
+              {% endif %}
+
+            </span>
+
+            <span
+              class="custom-product-add-loading"
+              aria-hidden="true"
+            >
+              Adding...
+            </span>
+
+          </button>
+
+
+          <!-- =================================================
+               DYNAMIC CHECKOUT
+          ================================================== -->
+
+          {% if section.settings.show_dynamic_checkout %}
+
+            <div class="custom-product-dynamic-checkout">
+              {{ form | payment_button }}
+            </div>
+
+          {% endif %}
+
+        {% endform %}
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       VARIANT DATA
+  ======================================================== -->
+
+  <script
+    type="application/json"
+    id="CustomProductVariants-{{ section.id }}"
+  >
+  [
+    {% for variant in current_product.variants %}
+
+      {
+        "id": {{ variant.id | json }},
+        "title": {{ variant.title | json }},
+        "available": {{ variant.available | json }},
+        "price": {{ variant.price | json }},
+        "priceFormatted": {{ variant.price | money | json }},
+        "compareAtPrice": {{ variant.compare_at_price | default: 0 | json }},
+        "compareAtPriceFormatted":
+          {% if variant.compare_at_price > 0 %}
+            {{ variant.compare_at_price | money | json }}
+          {% else %}
+            null
+          {% endif %},
+        "featuredImage":
+          {% if variant.featured_image %}
+            {{ variant.featured_image | image_url: width: 1200 | json }}
+          {% else %}
+            null
+          {% endif %},
+        "options": {{ variant.options | json }}
+      }
+
+      {% unless forloop.last %},{% endunless %}
+
+    {% endfor %}
+  ]
+  </script>
+
+</section>
+
+
+<!-- =========================================================
+     STYLES
+========================================================== -->
+
+<style>
+
+  #CustomProductSection-{{ section.id }} {
+    --product-gap: {{ section.settings.column_gap }}px;
+    --product-radius: {{ section.settings.border_radius }}px;
+    --product-bg: {{ section.settings.background_color }};
+    --product-text: {{ section.settings.text_color }};
+    --product-button: {{ section.settings.button_color }};
+    --product-button-text: {{ section.settings.button_text_color }};
+  }
+
+
+  #CustomProductSection-{{ section.id }} {
+    background: var(--product-bg);
+    color: var(--product-text);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-container {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-wrapper {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--product-gap);
+    align-items: start;
+  }
+
+
+  /* =========================================================
+     GALLERY
+  ========================================================== */
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-main-image {
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--product-radius);
+    background: #f7f7f7;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-main-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-placeholder {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-thumbnail {
+    display: block;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-thumbnail.is-active {
+    border-color: currentColor;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-thumbnail img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+
+  /* =========================================================
+     PRODUCT INFO
+  ========================================================== */
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-info {
+    min-width: 0;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-vendor {
+    margin-bottom: 10px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.7;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-title {
+    margin: 0 0 15px;
+    font-size: {{ section.settings.title_size }}px;
+    line-height: 1.15;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-price-wrapper {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-price {
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-compare-price {
+    font-size: 18px;
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-description {
+    margin-bottom: 28px;
+    line-height: 1.7;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-description img {
+    max-width: 100%;
+    height: auto;
+  }
+
+
+  /* =========================================================
+     OPTIONS
+  ========================================================== */
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-options {
+    margin-bottom: 25px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-option {
+    border: 0;
+    padding: 0;
+    margin: 0 0 20px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-option-label {
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-option-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-option-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-option-value {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 8px 16px;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-option-value:hover {
+    border-color: currentColor;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-option-input:checked
+  + .custom-product-option-value {
+    border-color: currentColor;
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+
+  /* =========================================================
+     QUANTITY
+  ========================================================== */
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-quantity-wrapper {
+    margin-bottom: 18px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-quantity-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-quantity {
+    display: flex;
+    width: max-content;
+    min-width: 130px;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-quantity-btn {
+    width: 42px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    font-size: 20px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-quantity-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-quantity-input {
+    width: 48px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    text-align: center;
+    font-size: 16px;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-quantity-input::-webkit-inner-spin-button,
+  #CustomProductSection-{{ section.id }}
+  .custom-product-quantity-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-quantity-input {
+    -moz-appearance: textfield;
+  }
+
+
+  /* =========================================================
+     ADD TO CART
+  ========================================================== */
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-add-to-cart {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 20px;
+    border: 0;
+    border-radius: var(--product-radius);
+    background: var(--product-button);
+    color: var(--product-button-text);
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: opacity 0.2s ease;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-add-to-cart:hover {
+    opacity: 0.88;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-add-to-cart:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-add-loading {
+    display: none;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-add-to-cart.is-loading
+  .custom-product-add-text {
+    display: none;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-add-to-cart.is-loading
+  .custom-product-add-loading {
+    display: inline;
+  }
+
+
+  #CustomProductSection-{{ section.id }}
+  .custom-product-dynamic-checkout {
+    margin-top: 12px;
+  }
+
+
+  /* =========================================================
+     TABLET
+  ========================================================== */
+
+  @media screen and (max-width: 989px) {
+
+    #CustomProductSection-{{ section.id }}
+    .custom-product-wrapper {
+      gap: 30px;
+    }
+
+
+    #CustomProductSection-{{ section.id }}
+    .custom-product-title {
+      font-size: {{ section.settings.title_size | times: 0.85 | round }}px;
+    }
+
+  }
+
+
+  /* =========================================================
+     MOBILE
+  ========================================================== */
+
+  @media screen and (max-width: 749px) {
+
+    #CustomProductSection-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top | times: 0.7 | round }}px;
+      padding-bottom: {{ section.settings.padding_bottom | times: 0.7 | round }}px;
+    }
+
+
+    #CustomProductSection-{{ section.id }}
+    .custom-product-container {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+
+
+    #CustomProductSection-{{ section.id }}
+    .custom-product-wrapper {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+
+    #CustomProductSection-{{ section.id }}
+    .custom-product-title {
+      font-size: 30px;
+    }
+
+
+    #CustomProductSection-{{ section.id }}
+    .custom-product-thumbnails {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+  }
+
+</style>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================== -->
+<script>
+(function () {
+  'use strict';
+
+  const sectionId = '{{ section.id }}';
+
+  const section = document.getElementById(
+    'CustomProductSection-' + sectionId
+  );
+
+  if (!section) return;
+
+  const form = document.getElementById(
+    'CustomProductForm-' + sectionId
+  );
+
+  const variantInput = document.getElementById(
+    'CustomProductVariantId-' + sectionId
+  );
+
+  const variantsElement = document.getElementById(
+    'CustomProductVariants-' + sectionId
+  );
+
+  const addButton = document.getElementById(
+    'CustomProductAddToCart-' + sectionId
+  );
+
+  const quantityInput = document.getElementById(
+    'CustomProductQuantity-' + sectionId
+  );
+
+  const mainImage = document.getElementById(
+    'CustomProductMainImage-' + sectionId
+  );
+
+  if (!form || !variantInput || !variantsElement) {
+    return;
+  }
+
+
+  /* ==========================================================
+     VARIANTS
+  ========================================================== */
+
+  let variants = [];
+
+  try {
+    variants = JSON.parse(
+      variantsElement.textContent
+    );
+  } catch (error) {
+    console.error(
+      'Unable to parse product variants:',
+      error
+    );
+    return;
+  }
+
+
+  function getCurrentVariant() {
+
+    const selectedOptions = [];
+
+    section
+      .querySelectorAll(
+        '.custom-product-option-input:checked'
+      )
+      .forEach(function (input) {
+        selectedOptions.push(input.value);
+      });
+
+
+    if (!selectedOptions.length) {
+
+      return variants.find(function (variant) {
+        return String(variant.id) ===
+          String(variantInput.value);
+      }) || variants[0];
+
+    }
+
+
+    return variants.find(function (variant) {
+
+      if (!variant.options) {
+        return false;
+      }
+
+      if (
+        variant.options.length !==
+        selectedOptions.length
+      ) {
+        return false;
+      }
+
+      return variant.options.every(
+        function (option, index) {
+          return option === selectedOptions[index];
+        }
+      );
+
+    });
+
+  }
+
+
+  /* ==========================================================
+     UPDATE PRODUCT VARIANT
+  ========================================================== */
+
+  function updateVariant() {
+
+    const variant =
+      getCurrentVariant();
+
+    if (!variant) {
+
+      variantInput.value = '';
+
+      if (addButton) {
+        addButton.disabled = true;
+      }
+
+      return;
+    }
+
+
+    variantInput.value =
+      variant.id;
+
+
+    const price =
+      section.querySelector(
+        '.custom-product-price'
+      );
+
+    if (price) {
+      price.textContent =
+        variant.priceFormatted;
+    }
+
+
+    const comparePrice =
+      section.querySelector(
+        '.custom-product-compare-price'
+      );
+
+    if (comparePrice) {
+
+      if (
+        variant.compareAtPrice &&
+        variant.compareAtPrice > variant.price
+      ) {
+
+        comparePrice.textContent =
+          variant.compareAtPriceFormatted || '';
+
+        comparePrice.style.display = '';
+
+      } else {
+
+        comparePrice.textContent = '';
+        comparePrice.style.display = 'none';
+
+      }
+
+    }
+
+
+    if (addButton) {
+
+      addButton.disabled =
+        !variant.available;
+
+      const buttonText =
+        addButton.querySelector(
+          '.custom-product-add-text'
+        );
+
+      if (buttonText) {
+
+        buttonText.textContent =
+          variant.available
+            ? '{{ section.settings.add_to_cart_text | escape }}'
+            : '{{ section.settings.sold_out_text | escape }}';
+
+      }
+
+    }
+
+
+    if (
+      variant.featuredImage &&
+      mainImage
+    ) {
+
+      mainImage.src =
+        variant.featuredImage;
+
+    }
+
+  }
+
+
+  /* ==========================================================
+     VARIANT CHANGE
+  ========================================================== */
+
+  section
+    .querySelectorAll(
+      '.custom-product-option-input'
+    )
+    .forEach(function (input) {
+
+      input.addEventListener(
+        'change',
+        updateVariant
+      );
+
+    });
+
+
+  /* ==========================================================
+     QUANTITY
+  ========================================================== */
+
+  const minusButton =
+    section.querySelector(
+      '[data-quantity-minus]'
+    );
+
+  const plusButton =
+    section.querySelector(
+      '[data-quantity-plus]'
+    );
+
+
+  if (minusButton && quantityInput) {
+
+    minusButton.addEventListener(
+      'click',
+      function () {
+
+        let value =
+          parseInt(
+            quantityInput.value,
+            10
+          ) || 1;
+
+        value =
+          Math.max(
+            1,
+            value - 1
+          );
+
+        quantityInput.value =
+          value;
+
+      }
+    );
+
+  }
+
+
+  if (plusButton && quantityInput) {
+
+    plusButton.addEventListener(
+      'click',
+      function () {
+
+        let value =
+          parseInt(
+            quantityInput.value,
+            10
+          ) || 1;
+
+        quantityInput.value =
+          value + 1;
+
+      }
+    );
+
+  }
+
+
+  /* ==========================================================
+     PRODUCT IMAGES
+  ========================================================== */
+
+  const thumbnails =
+    section.querySelectorAll(
+      '.custom-product-thumbnail'
+    );
+
+  thumbnails.forEach(function (thumbnail) {
+
+    thumbnail.addEventListener(
+      'click',
+      function () {
+
+        if (!mainImage) return;
+
+        const imageUrl =
+          thumbnail.dataset.imageUrl;
+
+        const imageAlt =
+          thumbnail.dataset.imageAlt || '';
+
+        if (imageUrl) {
+
+          mainImage.src =
+            imageUrl;
+
+          mainImage.alt =
+            imageAlt;
+
+        }
+
+
+        thumbnails.forEach(
+          function (item) {
+            item.classList.remove(
+              'is-active'
+            );
+          }
+        );
+
+
+        thumbnail.classList.add(
+          'is-active'
+        );
+
+      }
+    );
+
+  });
+
+
+  /* ==========================================================
+     GET FRESH CART DRAWER
+  ========================================================== */
+
+  async function getFreshCartDrawer() {
+
+    const response =
+      await fetch(
+        window.Shopify &&
+        window.Shopify.routes &&
+        window.Shopify.routes.root
+          ? window.Shopify.routes.root +
+            '?sections=cart-drawer,cart-icon-bubble'
+          : '/?sections=cart-drawer,cart-icon-bubble',
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          },
+          cache: 'no-store'
+        }
+      );
+
+
+    if (!response.ok) {
+      throw new Error(
+        'Unable to refresh cart.'
+      );
+    }
+
+
+    return await response.json();
+
+  }
+
+
+  /* ==========================================================
+     UPDATE CART ICON
+  ========================================================== */
+
+  function updateCartIcon(
+    sectionHTML
+  ) {
+
+    if (!sectionHTML) return;
+
+
+    const currentCartIcon =
+      document.querySelector(
+        '#cart-icon-bubble'
+      );
+
+
+    if (!currentCartIcon) {
+      return;
+    }
+
+
+    const parser =
+      new DOMParser();
+
+
+    const parsed =
+      parser.parseFromString(
+        sectionHTML,
+        'text/html'
+      );
+
+
+    const newCartIcon =
+      parsed.querySelector(
+        '#cart-icon-bubble'
+      );
+
+
+    if (!newCartIcon) {
+      return;
+    }
+
+
+    currentCartIcon.replaceWith(
+      newCartIcon
+    );
+
+  }
+
+
+  /* ==========================================================
+     UPDATE CART DRAWER
+     
+     IMPORTANT:
+     Keep the original <cart-drawer> element.
+     Do NOT replace the custom element itself.
+  ========================================================== */
+
+  function updateCartDrawer(
+    sectionHTML
+  ) {
+
+    if (!sectionHTML) {
+      return null;
+    }
+
+
+    const currentDrawer =
+      document.querySelector(
+        'cart-drawer'
+      );
+
+
+    if (!currentDrawer) {
+      return null;
+    }
+
+
+    const parser =
+      new DOMParser();
+
+
+    const parsed =
+      parser.parseFromString(
+        sectionHTML,
+        'text/html'
+      );
+
+
+    const newDrawer =
+      parsed.querySelector(
+        'cart-drawer'
+      );
+
+
+    if (!newDrawer) {
+      return null;
+    }
+
+
+    /*
+     * Save current drawer state.
+     */
+
+    const wasOpen =
+      currentDrawer.hasAttribute('open') ||
+      currentDrawer.classList.contains('active');
+
+
+    /*
+     * Copy the complete inner HTML.
+     *
+     * This includes:
+     *
+     * - Cart items
+     * - Quantity controls
+     * - Remove buttons
+     * - Subtotal
+     * - Checkout button
+     * - Empty cart state
+     */
+
+    currentDrawer.innerHTML =
+      newDrawer.innerHTML;
+
+
+    /*
+     * Update classes.
+     */
+
+    currentDrawer.className =
+      newDrawer.className;
+
+
+    /*
+     * Preserve drawer element ID.
+     */
+
+    if (newDrawer.id) {
+      currentDrawer.id =
+        newDrawer.id;
+    }
+
+
+    /*
+     * Make sure the drawer is not
+     * accidentally left empty.
+     */
+
+    if (
+      newDrawer.classList.contains(
+        'is-empty'
+      )
+    ) {
+
+      currentDrawer.classList.add(
+        'is-empty'
+      );
+
+    } else {
+
+      currentDrawer.classList.remove(
+        'is-empty'
+      );
+
+    }
+
+
+    return {
+      drawer: currentDrawer,
+      wasOpen: wasOpen
+    };
+
+  }
+
+
+  /* ==========================================================
+     OPEN DRAWER
+  ========================================================== */
+
+  function openDrawer(
+    drawer
+  ) {
+
+    if (!drawer) {
+
+      drawer =
+        document.querySelector(
+          'cart-drawer'
+        );
+
+    }
+
+
+    if (!drawer) {
+      return;
+    }
+
+
+    /*
+     * Dawn native open method.
+     */
+
+    if (
+      typeof drawer.open ===
+      'function'
+    ) {
+
+      requestAnimationFrame(
+        function () {
+
+          drawer.open();
+
+        }
+      );
+
+      return;
+    }
+
+
+    /*
+     * Fallback.
+     */
+
+    drawer.classList.add(
+      'active'
+    );
+
+    drawer.setAttribute(
+      'open',
+      ''
+    );
+
+  }
+
+
+  /* ==========================================================
+     REFRESH CART
+  ========================================================== */
+
+  async function refreshCart() {
+
+    /*
+     * First try to get the latest
+     * rendered Shopify cart sections.
+     */
+
+    const sections =
+      await getFreshCartDrawer();
+
+
+    /*
+     * Update cart icon.
+     */
+
+    if (
+      sections &&
+      sections['cart-icon-bubble']
+    ) {
+
+      updateCartIcon(
+        sections[
+          'cart-icon-bubble'
+        ]
+      );
+
+    }
+
+
+    /*
+     * Update drawer.
+     */
+
+    let drawerResult = null;
+
+    if (
+      sections &&
+      sections['cart-drawer']
+    ) {
+
+      drawerResult =
+        updateCartDrawer(
+          sections['cart-drawer']
+        );
+
+    }
+
+
+    /*
+     * Return drawer so we can open
+     * the exact updated element.
+     */
+
+    return drawerResult
+      ? drawerResult.drawer
+      : document.querySelector(
+          'cart-drawer'
+        );
+
+  }
+
+
+  /* ==========================================================
+     ADD TO CART
+  ========================================================== */
+
+  form.addEventListener(
+    'submit',
+    async function (event) {
+
+      event.preventDefault();
+
+
+      const currentVariant =
+        getCurrentVariant();
+
+
+      if (
+        !currentVariant ||
+        !currentVariant.available
+      ) {
+
+        return;
+
+      }
+
+
+      /*
+       * Loading state.
+       */
+
+      if (addButton) {
+
+        addButton.classList.add(
+          'is-loading'
+        );
+
+        addButton.disabled =
+          true;
+
+      }
+
+
+      try {
+
+        const formData =
+          new FormData(form);
+
+
+        /*
+         * Add product only.
+         *
+         * We intentionally do NOT depend
+         * on the sections returned from
+         * /cart/add.js.
+         *
+         * After successful add we make
+         * a fresh cart section request.
+         */
+
+        const response =
+          await fetch(
+            '{{ routes.cart_add_url }}.js',
+            {
+              method: 'POST',
+              headers: {
+                'Accept':
+                  'application/json'
+              },
+              body: formData
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.description ||
+            data.message ||
+            'Unable to add product to cart.'
+          );
+
+        }
+
+
+        /*
+         * ==========================================
+         * PRODUCT HAS BEEN ADDED
+         * ==========================================
+         *
+         * Now wait for Shopify cart state
+         * and request completely fresh
+         * cart drawer HTML.
+         */
+
+        const updatedDrawer =
+          await refreshCart();
+
+
+        /*
+         * ==========================================
+         * OPEN UPDATED DRAWER
+         * ==========================================
+         */
+
+        requestAnimationFrame(
+          function () {
+
+            setTimeout(
+              function () {
+
+                openDrawer(
+                  updatedDrawer
+                );
+
+              },
+              20
+            );
+
+          }
+        );
+
+
+        /*
+         * Notify other theme components.
+         */
+
+        document.dispatchEvent(
+          new CustomEvent(
+            'cart:updated',
+            {
+              bubbles: true,
+              detail: {
+                item: data
+              }
+            }
+          )
+        );
+
+
+        document.dispatchEvent(
+          new CustomEvent(
+            'cart:refresh',
+            {
+              bubbles: true
+            }
+          )
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          'Add to cart error:',
+          error
+        );
+
+
+        alert(
+          error.message ||
+          'Unable to add this product to cart.'
+        );
+
+      } finally {
+
+        if (addButton) {
+
+          addButton.classList.remove(
+            'is-loading'
+          );
+
+
+          const latestVariant =
+            getCurrentVariant();
+
+
+          addButton.disabled =
+            !latestVariant ||
+            !latestVariant.available;
+
+        }
+
+      }
+
+    }
+  );
+
+
+  /* ==========================================================
+     INITIALIZE
+  ========================================================== */
+
+  updateVariant();
+
+})();
+</script>
+
+
+{% else %}
+
+<section
+  id="CustomProductSection-{{ section.id }}"
+  class="custom-product-section"
+>
+
+  <div class="custom-product-container">
+
+    <p>
+      Please select a product from the section settings.
+    </p>
+
+  </div>
+
+</section>
+
+{% endif %}
+
+
+{% schema %}
+{
+  "name": "Saty Product Details",
+  "tag": "section",
+  "class": "section",
+
+  "settings": [
+
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_quantity",
+      "label": "Show quantity selector",
+      "default": true
+    },
+
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "Show dynamic checkout button",
+      "default": false
+    },
+
+    {
+      "type": "text",
+      "id": "add_to_cart_text",
+      "label": "Add to cart text",
+      "default": "Add to cart"
+    },
+
+    {
+      "type": "text",
+      "id": "sold_out_text",
+      "label": "Sold out text",
+      "default": "Sold out"
+    },
+
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title size",
+      "min": 20,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Maximum width",
+      "min": 800,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 1200
+    },
+
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Column gap",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 60
+    },
+
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "default": 60
+    },
+
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "default": 60
+    },
+
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#111111"
+    },
+
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#111111"
+    },
+
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    }
+
+  ],
+
+  "presets": [
+    {
+      "name": "Saty Product Details"
+    }
+  ]
+
+}
+{% endschema %}
