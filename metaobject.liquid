@@ -1,0 +1,243 @@
+{% assign metaobject = section.settings.metaobject %}
+
+<section
+  id="SatyMetaobject-{{ section.id }}"
+  class="saty-metaobject"
+>
+  <div class="saty-metaobject-container">
+
+    {% if metaobject != blank %}
+
+      {% comment %}
+        TITLE
+      {% endcomment %}
+
+      {% if metaobject.title != blank %}
+        <h2 class="saty-metaobject-title">
+          {{ metaobject.title.value }}
+        </h2>
+      {% endif %}
+
+
+      {% comment %}
+        DESCRIPTION
+      {% endcomment %}
+
+      {% if metaobject.description != blank %}
+        <div class="saty-metaobject-description">
+          {{ metaobject.description.value }}
+        </div>
+      {% endif %}
+
+
+      {% comment %}
+        IMAGE
+      {% endcomment %}
+
+      {% if metaobject.image != blank %}
+        <div class="saty-metaobject-image">
+          {{
+            metaobject.image.value
+            | image_url: width: 1200
+            | image_tag:
+              loading: 'lazy',
+              widths: '400, 600, 800, 1200'
+          }}
+        </div>
+      {% endif %}
+
+
+      {% comment %}
+        FEATURE
+      {% endcomment %}
+
+      {% if metaobject.feature != blank %}
+        <div class="saty-metaobject-row">
+          <strong>Feature</strong>
+          <span>
+            {{ metaobject.feature.value }}
+          </span>
+        </div>
+      {% endif %}
+
+
+      {% comment %}
+        FABRIC
+      {% endcomment %}
+
+      {% if metaobject.fabric != blank %}
+        <div class="saty-metaobject-row">
+          <strong>Fabric</strong>
+          <span>
+            {{ metaobject.fabric.value }}
+          </span>
+        </div>
+      {% endif %}
+
+
+      {% comment %}
+        SIZE
+      {% endcomment %}
+
+      {% if metaobject.size != blank %}
+        <div class="saty-metaobject-row">
+          <strong>Size</strong>
+          <span>
+            {{ metaobject.size.value }}
+          </span>
+        </div>
+      {% endif %}
+
+
+    {% else %}
+
+      {% if request.design_mode %}
+        <div class="saty-metaobject-empty">
+          Select a metaobject from the section settings.
+        </div>
+      {% endif %}
+
+    {% endif %}
+
+  </div>
+</section>
+
+
+<style>
+  #SatyMetaobject-{{ section.id }} {
+    width: 100%;
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #SatyMetaobject-{{ section.id }}
+  .saty-metaobject-container {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  #SatyMetaobject-{{ section.id }}
+  .saty-metaobject-title {
+    margin: 0 0 15px;
+    font-size: 32px;
+    line-height: 1.2;
+  }
+
+  #SatyMetaobject-{{ section.id }}
+  .saty-metaobject-description {
+    margin-bottom: 25px;
+    line-height: 1.6;
+  }
+
+  #SatyMetaobject-{{ section.id }}
+  .saty-metaobject-image {
+    margin-bottom: 25px;
+  }
+
+  #SatyMetaobject-{{ section.id }}
+  .saty-metaobject-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: {{ section.settings.image_radius }}px;
+  }
+
+  #SatyMetaobject-{{ section.id }}
+  .saty-metaobject-row {
+    display: flex;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  #SatyMetaobject-{{ section.id }}
+  .saty-metaobject-row strong {
+    min-width: 100px;
+  }
+
+  #SatyMetaobject-{{ section.id }}
+  .saty-metaobject-empty {
+    padding: 30px;
+    text-align: center;
+    border: 1px dashed #ccc;
+  }
+
+  @media screen and (max-width: 749px) {
+    #SatyMetaobject-{{ section.id }}
+    .saty-metaobject-title {
+      font-size: 25px;
+    }
+
+    #SatyMetaobject-{{ section.id }}
+    .saty-metaobject-row {
+      flex-direction: column;
+      gap: 5px;
+    }
+  }
+</style>
+
+
+{% schema %}
+{
+  "name": "Saty Metaobject",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "metaobject",
+      "id": "metaobject",
+      "label": "Select metaobject"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Maximum width",
+      "min": 600,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "Image radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Saty Metaobject"
+    }
+  ]
+}
+{% endschema %}
